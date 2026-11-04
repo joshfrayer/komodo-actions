@@ -1,0 +1,54 @@
+name: Komodo Deployment
+description: Updates the Komodo Stack to a new build tag
+inputs:
+  komodo-host:
+    description: The host of the Komodo Stack to update
+    required: true
+  komodo-api-key:
+    description: The API key for the Komodo Stack
+    required: true
+  komodo-api-secret:
+    description: The API secret for the Komodo Stack
+    required: true
+  registry-host:
+    description: The registry host for the Komodo Stack images
+    required: true
+  registry-images:
+    description: The registry images for the Komodo Stack
+    required: true
+  stack-name:
+    description: The name of the Komodo Stack to update
+    required: true
+  build-tag:
+    description: The new build tag to update the Komodo Stack to
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Retag
+      shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+        KOMODO_HOST: ${{ inputs.komodo-host }}
+        KOMODO_API_KEY: ${{ inputs.komodo-api-key }}
+        KOMODO_API_SECRET: ${{ inputs.komodo-api-secret }}
+        REGISTRY_HOST: ${{ inputs.registry-host }}
+        REGISTRY_IMAGES: ${{ inputs.registry-images }}
+        STACK_NAME: ${{ inputs.stack-name }}
+        BUILD_TAG: ${{ inputs.build-tag }}
+      run: |
+        echo "Retagging Komodo Stack $STACK_NAME with build tag $BUILD_TAG"
+        bash "$GITHUB_ACTION_PATH/scripts/retag.sh"
+    - name: Deploy
+      shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+        KOMODO_HOST: ${{ inputs.komodo-host }}
+        KOMODO_API_KEY: ${{ inputs.komodo-api-key }}
+        KOMODO_API_SECRET: ${{ inputs.komodo-api-secret }}
+        STACK_NAME: ${{ inputs.stack-name }}
+        BUILD_TAG: ${{ inputs.build-tag }}
+      run: |
+        echo "Deploying Komodo Stack $STACK_NAME with build tag $BUILD_TAG"
+        bash "$GITHUB_ACTION_PATH/scripts/deploy.sh"
